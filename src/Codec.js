@@ -108,7 +108,7 @@ export default class Codec {
 		}
 		if (k == data.length){
 			alert("Invalid File! Please submit a valid De-Compressed file");
-			this.location.reload();
+			window.location.reload();
 			return;
 		}
 		if (temp === "zer") {

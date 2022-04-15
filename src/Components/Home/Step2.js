@@ -51,12 +51,12 @@ export default function Step2()
 		}
 
         CompStatusState(['1','decode']);
-        setStepState('3');
 		
         var fileReader = new FileReader();
 		fileReader.onload = function (fileLoadedEvent) {
 			let text = fileLoadedEvent.target.result;
 			let [decodedString, outputMsg] = codecObj.decode(text);
+            setStepState('3');
 			myDownloadFile(uploadedFile.name.split('.')[0] + "_decompressed.txt", decodedString);
             CompStatusState(['2','decode',outputMsg]);
 		}
