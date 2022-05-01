@@ -1,8 +1,9 @@
 import React, {useContext} from "react";
 import { StepContext } from "../Context/StepContext";
 import { FormContext } from "../Context/FormContext";
+import imageToBase64 from 'image-to-base64/browser';
 import { CompStateContext } from "../Context/CompStateContext";
-import { onclickChanges2, myDownloadFile, ondownloadChanges } from "../../Codec.js";
+import { onclickChanges2, myDownloadFile,myDownloadImg , ondownloadChanges } from "../../Codec.js";
 import Codec from "../../Codec.js";
 
 export default function Step2()
@@ -10,12 +11,15 @@ export default function Step2()
     const [StepState, setStepState]=useContext(StepContext);
     const [form,setform]=useContext(FormContext);
     const [CompStatus, CompStatusState]=useContext(CompStateContext);
-
+    
     function EncodeFile()
     {
         var codecObj = new Codec();    
         var uploadedFile = form;
-
+        
+        let nameSplit = uploadedFile.name.split('.');
+		var exten = nameSplit[nameSplit.length - 1].toLowerCase();
+        
         if(uploadedFile.size === 0){
             alert("You have uploaded an empty file!\nThe compressed file might be larger in size than the uncompressed file (compression ratio might be smaller than one).\nBetter compression ratios are achieved for larger file sizes!");
         }	
@@ -28,16 +32,38 @@ export default function Step2()
 
         CompStatusState(['1','encode']);
         setStepState('3');
-  
-        var fileReader = new FileReader();
-        fileReader.onload = function (fileLoadedEvent) {
-            let text = fileLoadedEvent.target.result;
-            console.log(text);
-            let [encodedString, outputMsg] = codecObj.encode(text);
-            myDownloadFile(uploadedFile.name.split('.')[0] + "_compressed.txt", encodedString);
-            CompStatusState(['2','encode',outputMsg]);
+
+        if((exten==='png')||(exten==='jpeg')||(exten==='jpg'))
+        {
+                imageToBase64(uploadedFile)
+                .then((response)=>{
+                    console.log(response);
+                    let [encodedString, outputMsg] = codecObj.encode(response);
+                    myDownloadFile(uploadedFile.name.split('.')[0] + "_compressed.txt", encodedString);
+                    CompStatusState(['2','encode',outputMsg]);       
+                })  
+                .catch((error)=>{
+                    console.log(error);
+                })
         }
-        fileReader.readAsText(uploadedFile, "UTF-8");
+        else {
+            var fileReader = new FileReader();
+            fileReader.onload = function (fileLoadedEvent) {
+                let text = fileLoadedEvent.target.result;
+                let [encodedString, outputMsg] = codecObj.encode(text);
+                myDownloadFile(uploadedFile.name.split('.')[0] + "_compressed.txt", encodedString);
+                CompStatusState(['2','encode',outputMsg]);
+            }
+            fileReader.readAsText(uploadedFile, "UTF-8");
+        }
+    }
+    
+    function Base64ToImage(base64img, callback) {
+        var img = new Image();
+        img.onload = function() {
+            callback(img);
+        };
+        img.src = base64img;
     }
 
     function DecodeFile()
@@ -84,6 +110,7 @@ export default function Step2()
                 className="ml-4 hover:duration-200 hover:cursor-pointer bg-red-500 rounded-md p-2 px-4 mt-5 text-white text-lg font-semibold hover:bg-[#161616]"
                 id="decode">
                 Decompress</button>
+
         </div>
         </div>
     </div>);

@@ -196,3 +196,11 @@ export function myDownloadFile(fileName, text) {
 	a.download = fileName;
 	a.click();
 }
+export function myDownloadImg(fileName, img) {
+	var a = document.createElement('a');
+	a.href = img;
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+}

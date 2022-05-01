@@ -1,4 +1,3 @@
-import React from "react"; 
 export default class MinHeap {
 	constructor() {
 		this.heap_array = [];
@@ -34,7 +33,7 @@ export default class MinHeap {
 		return this.heap_array[0];
 	}
 	pop() {
-		if (this.empty() == false) {
+		if (this.empty() === false) {
 			var last_index = this.size() - 1;
 			this.heap_array[0] = this.heap_array[last_index];
 			this.heap_array.pop();
